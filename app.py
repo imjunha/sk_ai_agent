@@ -260,7 +260,7 @@ with st.sidebar:
         "1c 제품 spec out 문제 문의드립니다.",
     ]
     for q in example_qs:
-        if st.button(q, key=f"ex_{q}", use_container_width=True):
+        if st.button(q, key=f"ex_{q}", use_container_width=True, disabled=True):
             st.session_state.pending_q = q
             st.rerun()
 
