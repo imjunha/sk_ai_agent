@@ -92,6 +92,14 @@ st.markdown("""
     border: 1.5px solid #cbd5e1 !important; border-radius: 10px !important;
     font-size: 0.95rem !important;
 }
+/* password 입력 필드의 show/hide 버튼 숨기기 */
+[type="password"]::-webkit-reveal-button,
+[type="password"]::-webkit-hidden-reveal-button {
+    display: none !important;
+}
+.stTextInput [data-testid="textInputElement"] svg {
+    display: none !important;
+}
 hr { border-color: #e0e4ea; }
 .empty-state { text-align: center; padding: 50px 20px; }
 .empty-state .icon  { font-size: 3.5rem; margin-bottom: 12px; }
