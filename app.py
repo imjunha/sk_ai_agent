@@ -295,7 +295,10 @@ with st.sidebar:
     st.markdown('<div class="sidebar-section">⚙️ 설정</div>', unsafe_allow_html=True)
     
     default_api_key = st.secrets.get("OPENAI_API_KEY", "")
-    """if default_api_key:
+    
+    """
+
+    if default_api_key:
         st.info("🔐 Secrets에서 API Key를 자동으로 로드했습니다.")
         api_key_input = st.text_input(
             "🔑 OpenAI API Key (수정 가능)", value=st.session_state.api_key,
@@ -310,7 +313,9 @@ with st.sidebar:
         )
     
     if api_key_input:
-        st.session_state.api_key = api_key_input"""
+        st.session_state.api_key = api_key_input
+        
+    """
 
     model_choice = st.selectbox("🤖 모델", ["gpt-4o-mini", "gpt-4o", "gpt-4-turbo"], index=0)
     top_k = st.slider("🔍 검색 Top-K", 3, 10, 3)
