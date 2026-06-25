@@ -232,7 +232,7 @@ def call_llm(messages, api_key, model="gpt-4o-mini"):
 # 세션 초기화
 # ─────────────────────────────────────────────────────────────
 if "messages"      not in st.session_state: st.session_state.messages      = []
-if "api_key"       not in st.session_state: st.session_state.api_key       = ""
+if "api_key"       not in st.session_state: st.session_state.api_key       = st.secrets.get("OPENAI_API_KEY", "")
 if "pending_q"     not in st.session_state: st.session_state.pending_q     = ""
 # 입력창 key 인덱스: 전송 후 0↔1로 토글하면 Streamlit이 새 위젯을 생성 → 자동 클리어
 if "input_key_idx" not in st.session_state: st.session_state.input_key_idx = 0
@@ -283,12 +283,24 @@ with st.sidebar:
         st.error(f"데이터 로드 오류: {e}")
 
     st.markdown("---")
-    # 그 다음으로 OpenAI API Key, 모델, Top-K 컨트롤을 배치
-    api_key_input = st.text_input(
-        "🔑 OpenAI API Key", value=st.session_state.api_key,
-        type="password", placeholder="sk-...",
-        help="키는 세션에서만 사용되며 저장되지 않습니다.",
-    )
+    # OpenAI API Key, 모델, Top-K 컨트롤
+    st.markdown('<div class="sidebar-section">⚙️ 설정</div>', unsafe_allow_html=True)
+    
+    default_api_key = st.secrets.get("OPENAI_API_KEY", "")
+    if default_api_key:
+        st.info("🔐 Secrets에서 API Key를 자동으로 로드했습니다.")
+        api_key_input = st.text_input(
+            "🔑 OpenAI API Key (수정 가능)", value=st.session_state.api_key,
+            type="password", placeholder="기존 키를 override하려면 입력하세요.",
+            help="Secrets 키를 수정하려면 새로운 키를 입력하세요.",
+        )
+    else:
+        api_key_input = st.text_input(
+            "🔑 OpenAI API Key", value=st.session_state.api_key,
+            type="password", placeholder="sk-...",
+            help="키는 세션에서만 사용되며 저장되지 않습니다.",
+        )
+    
     if api_key_input:
         st.session_state.api_key = api_key_input
 
@@ -434,8 +446,8 @@ if send and user_input.strip():
     # 전송 후 입력창 클리어: key index 토글 (위젯 재생성 → 빈 값)
     st.session_state.input_key_idx ^= 1
 
-    if not st.session_state.api_key:
-        st.warning("⚠️ 사이드바에서 OpenAI API Key를 먼저 입력해주세요.")
+    if not st.session_state.api_key and not st.secrets.get("OPENAI_API_KEY"):
+        st.warning("⚠️ OpenAI API Key가 필요합니다.\n\n• Secrets 설정: `.streamlit/secrets.toml`에 `OPENAI_API_KEY = \"sk-...\"`\n• 또는 사이드바에서 API Key 입력")
         st.stop()
 
     st.session_state.messages.append({"role": "user", "content": query})
@@ -507,7 +519,7 @@ if send and user_input.strip():
                 "content": f"[검색된 조직 데이터]\n{context}\n\n[사용자 질문]\n{query}",
             })
 
-            answer = call_llm(llm_msgs, st.session_state.api_key, model_choice)
+            answer = call_llm(llm_msgs, st.session_state.api_key or st.secrets.get("OPENAI_API_KEY"), model_choice)
 
             st.session_state.messages.append({
                 "role": "assistant",
